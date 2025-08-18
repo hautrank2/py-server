@@ -5,8 +5,17 @@ from pydantic import BaseModel
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import StreamingResponse
 from services.image import convert_img
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class Item(BaseModel):
@@ -36,6 +45,7 @@ async def convert_endpoint(
     ext: str = Form(..., description="Định dạng đầu ra: jpg|jpeg|png|webp|bmp|tiff"),
     quality: int = Form(90, description="Chất lượng cho JPEG/WEBP (1–100)"),
 ):
+    print('@app.post("/convert")', file, ext, quality)
     raw = await file.read()
     if not raw:
         raise HTTPException(status_code=400, detail="Empty file")
